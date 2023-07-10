@@ -13,10 +13,8 @@ nosotros revisamos miles y miles de tweets, iniciativas, etc y te damos una list
 
 with st.form(key='params_for_api'):
 
-    user_input = st.text_area('En unas palabras, cuéntanos qué te interesa/preocupa/importa:', '''
-    Para mí, lo más importante es la educación. Sin ella, creo que México tiene un futuro muy retador.
-    Además de esto, también creo que la corrupción es un cáncer grave que tiene nuestro sistema político., (...)
-    ''')
+    user_input = st.text_area('En unas palabras, cuéntanos qué te interesa/preocupa/importa:', 
+    '''Para mí, lo más importante es la educación. Sin ella, creo que México tiene un futuro muy retador. Además de esto, también creo que la corrupción es un cáncer grave que tiene nuestro sistema político., (...)''')
 
     st.form_submit_button('Analizar')
 
