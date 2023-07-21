@@ -18,7 +18,7 @@ with st.form(key='params_for_api'):
     if st.form_submit_button('Analizar'):
         params = dict(user_input=user_input)
 
-        sivico_api_url = 'https://sivico-api-prod-vbgljmfjoa-ew.a.run.app/senators'
+        sivico_api_url = 'http://127.0.0.1:8000/senators'
 
         try:
             response = requests.get(sivico_api_url, params=params)
@@ -30,10 +30,12 @@ with st.form(key='params_for_api'):
                 full_name = f"{senator['Nombre']} {senator['Apellidos']}"
                 fraction = senator['Fraccion']
                 similarity = senator['similarity_score']
+                summary = senator['initiative_summary_es']
 
                 st.write(f"**Nombre:** {full_name}")
                 st.write(f"**Partido:** {fraction}")
-                st.write(f"**Puntaje de similitud:** {similarity:.2f}")
+                st.write(f"**Puntaje de similitud:** {similarity:.4f}")
+                st.write(f"**Resumen:** {summary}")
                 st.write("---")
         except requests.RequestException as e:
             st.error(f"Error fetching data: {e}")
