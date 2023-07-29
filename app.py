@@ -5,10 +5,10 @@ import requests
 
 st.set_page_config(layout="wide")
 
-st.markdown("<h1 style='text-align: center; color: white;'>Bienvenido a SIVICO y felicidades por querer <br> ser unx Mexicanx más informadx 🇲🇽🤓</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: black;'>Bienvenido a SIVICO y felicidades por querer <br> ser unx Mexicanx más informadx 🇲🇽🤓</h1>", unsafe_allow_html=True)
 
 
-st.markdown("<h3 style='text-align: center; color: white;'>¡Nuestra herramienta es muy fácil de usar!<br>Cuéntanos en unas palabras qué es lo que te importa/preocupa/interesa,\
+st.markdown("<h3 style='text-align: center; color: black;'>¡Nuestra herramienta es muy fácil de usar!<br>Cuéntanos en unas palabras qué es lo que te importa/preocupa/interesa,\
 <br>nosotros revisamos miles y miles de iniciativas, videos de Youtube, etc <br> y te damos una lista de lxs senadorxs más alineados con tus intereses.</h3>", unsafe_allow_html=True)
 
 """
@@ -32,19 +32,6 @@ with st.form(key='params_for_api'):
             matches = response.json()['beto']
             st.header(f'Estos son los senadores más parecidos a ti!')
             
-            col1, col2, col3 = st.columns(3)
-
-            with col1:
-                st.subheader("Detalles de Senadorx")
-
-            with col2:
-                st.subheader("Top 5 temas por # de iniciativas")
-
-            with col3:
-                st.subheader("Contacta a tu senadorx")
-            
-            # st.write("---")
-
             for senator in matches:
                                                 
                 senator_id = senator['senator_id']
@@ -55,6 +42,7 @@ with st.form(key='params_for_api'):
                 telefono = senator["telefono"]
                 similarity = senator['similarity_score']
                 attendance_score = senator['attendance_score']
+                summary = senator['BETO_summary']
                 
                 #create dictionary with number of initiatives per topic
                 topics = {}
@@ -93,24 +81,37 @@ with st.form(key='params_for_api'):
                 sorted_topics = sorted(topics.items(), key=lambda x:x[1], reverse=True)[:5]
                 top_5 = dict(sorted_topics)
                 
-                col1.write(f"**Nombre:** {full_name}")
-                col1.write(f"**Partido:** {fraction}")
-                col1.write(f"**Estado:** {estado}")
-                col1.write(f"**Score de similaridad:** {float(similarity)*100:.0f}")
-                col1.write(f"**% de asistencia:** {float(attendance_score)*100:.0f}%")
+                with st.container():
                 
-                for value in top_5:
-                    col2.write(f"**{value}:** {topics[value]}")
+                    col1, col2, col3 = st.columns(3)
+
+                    with col1:
+                        st.subheader("Detalles de Senadorx")
+
+                    with col2:
+                        st.subheader("Top 5 temas por # de iniciativas")
+
+                    with col3:
+                        st.subheader("Contacta a tu senadorx")
+                        
+                    col1.write(f"**Nombre:** {full_name}")
+                    col1.write(f"**Partido:** {fraction}")
+                    col1.write(f"**Estado:** {estado}")
+                    col1.write(f"**Score de similaridad:** {float(similarity)*100:.0f}")
+                    col1.write(f"**% de asistencia:** {float(attendance_score)*100:.0f}%")
+                    
+                    for value in top_5:
+                        col2.write(f"**{value}:** {topics[value]}")
+                    
+                    col3.write("**Email:**")
+                    col3.write(f"{email}")
+                    col3.write(f"**Telefono:** {telefono}")
+                    col3.write(f"**Pagina web:**")
+                    col3.write(f"https://www.senado.gob.mx/65/senador/{senator_id}")
                 
-                col3.write("**Email:**")
-                col3.write(f"{email}")
-                col3.write(f"**Telefono:** {telefono}")
-                col3.write(f"**Pagina web:**")
-                col3.write(f"https://www.senado.gob.mx/65/senador/{senator_id}")
-                
-                col1.write("---")
-                col2.write("---")
-                col3.write("---")
+                with st.container():
+                    with st.expander(f"Ver resumen de iniciativas de {full_name}:"):
+                        st.write(f'\"\"\"{summary}\"\"\"')
         
         except requests.RequestException as e:
             st.error(f"Error fetching data: {e}")
