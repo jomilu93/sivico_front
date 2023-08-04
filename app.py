@@ -30,24 +30,24 @@ with st.form(key='params_for_api'):
     '''Ejemplo: Para mí, lo más importante es la educación. Sin ella, creo que México tiene un futuro muy retador. Ademas de esto, también creo que la corrupción es un cáncer grave que tiene nuestro sistema político. (...)''')
 
     if st.form_submit_button('Analizar'):
-        
+
         params = dict(user_input=user_input)
 
-        sivico_api_url = 'https://sivico-api-prod-vbgljmfjoa-ew.a.run.app/senators'
+        sivico_api_url = 'https://sivico-instance-vbgljmfjoa-ew.a.run.app/senators'
 
         try:
             response = requests.get(sivico_api_url, params=params)
             response.raise_for_status()
             matches = response.json()
-            
+
             with st.spinner('Revisando miles de iniciativas, propuestas, videos y Tweets publicados...'):
-            
+
                 time.sleep(5)
-                
+
                 st.header(f'Estxs son lxs senadxres que más han velado por tus intereses:')
-                
+
                 for senator in matches:
-                                                    
+
                     senator_id = senator['senator_id']
                     full_name = senator['senadores']
                     nombre = senator['Nombre']
@@ -63,17 +63,17 @@ with st.form(key='params_for_api'):
                     html = requests.get(url)
                     content = BeautifulSoup(html.text, 'html.parser')
                     images = content.findAll("img")
-                    
+
                     if [image.attrs['src'] for image in images if "intervenciones" in image.attrs['src']]:
                         image_url = [image.attrs['src'] for image in images if "intervenciones" in image.attrs['src']][0]
                     else:
                         image_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Senate_Seal_%28Mexico%29.svg/1200px-Senate_Seal_%28Mexico%29.svg.png"
-                    
+
                     # image = f"https://www.senado.gob.mx/65/images/senadores/64/{senator_id}-{str(apellido)+'_' for apellido in appellidos.split(' ')}jose_ramon-20230307-125301.jpg"
-                    
+
                     #create dictionary with number of initiatives per topics
                     topics = {}
-                    topics["Salud"] = len(senator['Salud_initiative_list'].split(".'")) if not senator['Salud_initiative_list'] is None or senator['Salud_initiative_list'] == "[]" else 0           
+                    topics["Salud"] = len(senator['Salud_initiative_list'].split(".'")) if not senator['Salud_initiative_list'] is None or senator['Salud_initiative_list'] == "[]" else 0
                     topics["Educacion"] = len(senator['Educacion_initiative_list'].split(".'")) if not senator['Educacion_initiative_list'] is None or senator['Educacion_initiative_list'] == "[]" else 0
                     topics["Justicia"] = len(senator['Justicia_initiative_list'].split(".'")) if not senator['Justicia_initiative_list'] is None or senator['Justicia_initiative_list'] == "[]" else 0
                     topics["Gobernacion"] = len(senator['Gobernacion_initiative_list'].split(".'")) if not senator['Gobernacion_initiative_list'] is None or senator['Gobernacion_initiative_list'] == "[]" else 0
@@ -84,7 +84,7 @@ with st.form(key='params_for_api'):
                     topics["Seguridad Social"] = len(senator['Seguridad_Social_initiative_list'].split(".'")) if not senator['Seguridad_Social_initiative_list'] is None or senator['Seguridad_Social_initiative_list'] == "[]" else 0
                     topics["Derechos de Jovenes"] = len(senator['Derechos_de_la_Ninez_y_de_la_Adolescencia_initiative_list'].split(".'")) if not senator['Derechos_de_la_Ninez_y_de_la_Adolescencia_initiative_list'] is None or senator['Derechos_de_la_Ninez_y_de_la_Adolescencia_initiative_list'] == "[]" else 0
                     topics["Comunicaciones y Transporte"] = len(senator['Comunicaciones_y_Transportes_initiative_list'].split(".'")) if not senator['Comunicaciones_y_Transportes_initiative_list'] is None or senator['Comunicaciones_y_Transportes_initiative_list'] == "[]" else 0
-                    topics["Economia"] = len(senator['Economia_initiative_list'].split(".'")) if not senator['Economia_initiative_list'] is None or senator['Economia_initiative_list'] == "[]" else 0         
+                    topics["Economia"] = len(senator['Economia_initiative_list'].split(".'")) if not senator['Economia_initiative_list'] is None or senator['Economia_initiative_list'] == "[]" else 0
                     topics["Medio ambiente"] = len(senator['Medio_Ambiente__Recursos_Naturales_y_Cambio_Climatico_initiative_list'].split(".'")) if not senator['Medio_Ambiente__Recursos_Naturales_y_Cambio_Climatico_initiative_list'] is None or senator['Medio_Ambiente__Recursos_Naturales_y_Cambio_Climatico_initiative_list'] == "[]" else 0
                     topics["Hacienda y Credito Publico"] = len(senator['Hacienda_y_Credito_Publico_initiative_list'].split(".'")) if not senator['Hacienda_y_Credito_Publico_initiative_list'] is None or senator['Hacienda_y_Credito_Publico_initiative_list'] == "[]" else 0
                     topics["Relaciones Exteriores"] = len(senator['Relaciones_Exteriores_initiative_list'].split(".'")) if not senator['Relaciones_Exteriores_initiative_list'] is None or senator['Relaciones_Exteriores_initiative_list'] == "[]" else 0
@@ -104,13 +104,13 @@ with st.form(key='params_for_api'):
                     topics["Asuntos indigenas"] = len(senator['Asuntos_Indigenas_initiative_list'].split(".'")) if not senator['Asuntos_Indigenas_initiative_list'] is None or senator['Asuntos_Indigenas_initiative_list'] == "[]" else 0
                     topics["Movilidad y zonas urbanas"] = len(senator['Zonas_Metropolitanas_y_Movilidad_initiative_list'].split(".'")) if not senator['Zonas_Metropolitanas_y_Movilidad_initiative_list'] is None or senator['Zonas_Metropolitanas_y_Movilidad_initiative_list'] == "[]" else 0
                     topics["Derecho de consumidor"] = len(senator['Defensa_de_los_Consumidores_initiative_list'].split(".'")) if not senator['Defensa_de_los_Consumidores_initiative_list'] is None or senator['Defensa_de_los_Consumidores_initiative_list'] == "[]" else 0
-                    
+
                     sorted_topics = sorted(topics.items(), key=lambda x:x[1], reverse=True)[:5]
                     top_5 = dict(sorted_topics)
-                    
-                    
+
+
                     with st.container():
-                    
+
                         col1, col2, col3, col4 = st.columns(4)
 
                         with col2:
@@ -121,29 +121,29 @@ with st.form(key='params_for_api'):
 
                         with col4:
                             st.subheader("Contacta a tu senadorx")
-                            
+
                         col1.image(image_url)
-                            
+
                         col2.write(f"**Nombre:** {full_name}")
                         col2.write(f"**Partido:** {fraction}")
                         col2.write(f"**Estado:** {estado}")
                         col2.write(f"**Score de similaridad:** {float(similarity)*100:.0f}")
                         col2.write(f"**% de asistencia:** {float(attendance_score)*100:.0f}%")
-                        
+
                         for value in top_5:
                             col3.write(f"**{value}:** {topics[value]}")
-                        
+
                         col4.write("**Email:**")
                         col4.write(f"{email}")
                         col4.write(f"**Telefono:** {telefono}")
                         col4.write(f"**Pagina web:**")
                         col4.write(f"https://www.senado.gob.mx/65/senador/{senator_id}")
-                    
+
                     with st.container():
                         with st.expander(f"Ver iniciativas propuestas por {full_name}:"):
                             for line in summary.split(". "):
                                 st.markdown(f'- {line}.')
-        
+
         except requests.RequestException as e:
             st.error(f"Error fetching data: {e}")
 
