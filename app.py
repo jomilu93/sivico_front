@@ -3,10 +3,14 @@ from bs4 import BeautifulSoup
 from lxml import etree
 import time
 from PIL import Image
+from nltk.corpus import stopwords
 
 import requests
 
 st.set_page_config(layout="wide")
+extra_stop_words = ['México', 'sistema', 'senadores', 'aumentar', 'acceso', 'manera', 'mejorar']
+stop_words = set(stopwords.words('spanish'))
+stop_words.update(extra_stop_words)
 
 logo =  Image.open('assets/Sivico_Logo.png')
 
@@ -27,7 +31,7 @@ st.markdown("<p style='text-align: left; color: black;'>SÍVICO es una herramien
 
 with st.form(key='params_for_api'):
     user_input = st.text_area('En unas palabras, cuéntanos qué te interesa/preocupa/importa:',
-    '''Ejemplo: Para mí, lo más importante es la educación. Sin ella, creo que México tiene un futuro muy retador. Ademas de esto, también creo que la corrupción es un cáncer grave que tiene nuestro sistema político. (...)''')
+    '''Para mí, lo más importante es la educación. Creo que es necesario mejorar el acceso a educación de calidad.''')
 
     if st.form_submit_button('Analizar'):
 
@@ -38,7 +42,7 @@ with st.form(key='params_for_api'):
         try:
             response = requests.get(sivico_api_url, params=params)
             response.raise_for_status()
-            matches = response.json()
+            matches = response.json()[:3]
 
             with st.spinner('Revisando miles de iniciativas, propuestas, videos y Tweets publicados...'):
 
@@ -56,7 +60,6 @@ with st.form(key='params_for_api'):
                     estado = senator['Estado']
                     email = senator["correo"]
                     telefono = senator["telefono"]
-                    similarity = senator['similarity_score']
                     attendance_score = senator['attendance_score']
                     summary = senator['beto_preprocessed_summary']
                     url = f'https://www.senado.gob.mx/65/senador/{senator_id}'
@@ -127,7 +130,6 @@ with st.form(key='params_for_api'):
                         col2.write(f"**Nombre:** {full_name}")
                         col2.write(f"**Partido:** {fraction}")
                         col2.write(f"**Estado:** {estado}")
-                        col2.write(f"**Score de similaridad:** {float(similarity)*100:.0f}")
                         col2.write(f"**% de asistencia:** {float(attendance_score)*100:.0f}%")
 
                         for value in top_5:
@@ -142,7 +144,11 @@ with st.form(key='params_for_api'):
                     with st.container():
                         with st.expander(f"Ver iniciativas propuestas por {full_name}:"):
                             for line in summary.split(". "):
-                                st.markdown(f'- {line}.')
+                                line_words = line.split(" ")
+                                user_input_words = params["user_input"].split(" ")
+                                filtered_user_input = [word for word in user_input_words if word not in stop_words]
+                                if len(set(line_words).intersection(filtered_user_input)) != 0:
+                                    st.markdown(f'- {line}.')
 
         except requests.RequestException as e:
             st.error(f"Error fetching data: {e}")
