@@ -7,6 +7,8 @@ from nltk.corpus import stopwords
 
 import requests
 
+nltk.download('stopwords')
+
 st.set_page_config(layout="wide")
 extra_stop_words = ['México', 'sistema', 'senadores', 'aumentar', 'acceso', 'manera', 'mejorar']
 stop_words = set(stopwords.words('spanish'))
