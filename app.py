@@ -2,11 +2,14 @@ import streamlit as st
 from bs4 import BeautifulSoup
 from lxml import etree
 import time
+import nltk
 from PIL import Image
+
 from nltk.corpus import stopwords
 
 import requests
 
+nltk.download('stopwords')
 st.set_page_config(layout="wide")
 extra_stop_words = ['México', 'sistema', 'senadores', 'aumentar', 'acceso', 'manera', 'mejorar']
 stop_words = set(stopwords.words('spanish'))
