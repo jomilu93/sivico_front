@@ -40,7 +40,7 @@ with st.form(key='params_for_api'):
 
         params = dict(user_input=user_input)
 
-        sivico_api_url = 'https://sivico-instance-vbgljmfjoa-ew.a.run.app/senators'
+        sivico_api_url = 'https://sivico-api-prod-vbgljmfjoa-ew.a.run.app/senators'
 
         try:
             response = requests.get(sivico_api_url, params=params)
